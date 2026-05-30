@@ -1,0 +1,51 @@
+1. ROLE: GUEST (Khách Hàng - Không cần đăng nhập)
+Tập trung vào trải nghiệm mượt mà, trực quan nhằm kích thích thị giác và tối ưu hóa tỷ lệ đặt lịch chụp nhanh nhất.
+	Xem & Khám phá nội dung:
+	+Xem thông tin giới thiệu, địa chỉ, hotline và quy trình làm việc chuyên nghiệp của Studio.
+	+Duyệt danh sách và xem chi tiết các Gói dịch vụ (Bảng giá, số layout bối cảnh, số trang phục, quyền lợi đi kèm).
+	+Xem các bộ sưu tập ảnh nghệ thuật (Portfolio/Concept) thực tế đã thực hiện, hỗ trợ bộ lọc nhanh theo từng chủ đề (Beauty, Ảnh bầu, Couple...).
+	+Đọc các bài viết chia sẻ kinh nghiệm chuẩn bị trước khi chụp, mẹo tạo dáng (Blog/Tâm sự).
+	+Xem đánh giá, nhận xét thực tế từ các khách hàng cũ (Customer Stories).
+	
+	Hành động nghiệp vụ:
+	+Đặt lịch chụp trực tuyến (Booking): Điền form đăng ký thông tin cá nhân, chọn gói dịch vụ, concept mong muốn, chọn ngày và khung giờ chụp cụ thể.
+	+Tra cứu tiến độ (Không cần tài khoản): Nhập Số điện thoại + Mã đặt lịch (Booking Code) để kiểm tra trạng thái phê duyệt lịch hẹn, xem thông tin nhân sự được gán, hoặc lấy link tải 	ảnh hậu kỳ.
+
+2. ROLE: ADMIN (Quản trị viên / Chủ Studio - Toàn quyền)
+Chịu trách nhiệm vận hành toàn bộ luồng dữ liệu, quản lý nhân sự, kiểm soát tài chính và phê duyệt tiến độ sản phẩm.
+	Quản lý Nghiệp vụ & Vận hành (Core Workflow):Quản lý Lịch hẹn (Booking Management): 
+	+Tiếp nhận, phê duyệt trạng thái lịch đặt (PENDING $\rightarrow$ CONFIRMED $\rightarrow$ COMPLETED...).
+	+Xử lý Tài chính: Cập nhật trạng thái thanh toán (Chưa cọc, Đã cọc, Đã thanh toán đủ, Hoàn tiền).
+	+Điều phối & Phân công: Gán 1 Photographer và 1 Makeup Artist chịu trách nhiệm cho từng Booking (Hệ thống tự động chặn nếu nhân sự bị trùng lịch).
+	+Giám sát Hậu kỳ (Post-Production): Theo dõi tiến độ chỉnh sửa ảnh của thợ photoshop, lưu trữ link Drive ảnh gốc và ảnh đã hoàn thiện, cập nhật trạng thái bàn giao sản phẩm cho 	khách.
+	+Tra cứu Lịch sử: Xem nhật ký thay đổi trạng thái của lịch hẹn và lịch sử hậu kỳ để kiểm soát gian lận hoặc sai sót vận hành.
+	
+	Quản lý Hệ thống & Nội dung (CMS):
+	+Quản lý Nhân sự: Thêm/Sửa/Xóa thông tin, tài khoản đăng nhập và hồ sơ năng lực hiển thị công khai của nhân viên (staff_profiles).
+	+CMS Danh mục: Cập nhật bảng giá các Gói dịch vụ, đăng tải các bộ sưu tập Concept ảnh mới, duyệt Feedback khách hàng và viết bài Blog cẩm nang.
+	+Cấu hình Studio: Thay đổi các thông tin tĩnh của tiệm (Hotline, địa chỉ, bản đồ, logo, banner...).
+
+3. ROLE: PHOTOGRAPHER (Nhiếp ảnh gia - Cần đăng nhập)
+Giao diện tinh gọn, tập trung hiển thị lịch trình và thông tin phục vụ cho buổi bấm máy chụp hình.
+	Quản lý Lịch làm việc:
+	+Xem lịch làm việc cá nhân (Lịch chụp) theo dạng Danh sách hoặc Dạng lịch (Calendar) trực quan theo Tuần/Tháng.
+	+Nhận thông báo hoặc hiển thị các ca chụp mới vừa được Admin phân công.
+	
+	Khai thác thông tin:
+	+Xem chi tiết thông tin của ca chụp mình phụ trách: Tên khách hàng, SĐT, Gói dịch vụ đã mua, Concept khách muốn hướng tới và các ghi chú đặc biệt (Ví dụ: Khách muốn chụp góc mặt 	bên trái, bối cảnh tone tối...).
+	+Xem thông tin người đồng hành: Biết được Chuyên viên trang điểm (Makeup Artist) nào sẽ làm việc cùng mình trong ca chụp đó để phối hợp bối cảnh và layout cho đồng nhất.
+
+	Ràng buộc bảo mật: 
+	+Chỉ được quyền xem dữ liệu liên quan đến ca làm việc của chính mình; không được can thiệp chỉnh sửa gói dịch vụ, doanh thu hay lịch làm việc của người khác.
+
+4. ROLE: MAKEUP ARTIST (Chuyên viên trang điểm - Cần đăng nhập)
+Giao diện tương tự Photographer, tập trung vào thời gian và layout trang điểm cho khách hàng trước giờ chụp.
+	Quản lý Lịch làm việc:
+	+Theo dõi sát sao lịch làm việc, khung giờ phải có mặt tại Studio để chuẩn bị trang điểm đón khách.
+
+	Khai thác thông tin:
+	+Xem chi tiết yêu cầu của khách hàng liên quan đến makeup: Gói chụp quy định bao nhiêu trang phục/layout tóc, đọc ghi chú yêu cầu riêng của khách (Ví dụ: Khách bị dị ứng mỹ phẩm có 	cồn, muốn makeup tone cam đất...).
+	+Xem thông tin người đồng hành: Biết được Photographer nào sẽ bấm máy ca này để trao đổi trước về tone màu makeup sao cho lên hình ăn ý nhất với ánh sáng bối cảnh.
+
+	Ràng buộc bảo mật: 
+	+Chỉ xem lịch cá nhân được phân công, không có quyền can thiệp vào bất kỳ dữ liệu cấu hình nào khác trên hệ thống quản trị.

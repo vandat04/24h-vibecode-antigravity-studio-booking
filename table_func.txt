@@ -1,0 +1,67 @@
+1. Nhóm Quản Lý Người Dùng & Phân Quyền (Identity & Access)
+roles (Vai trò)
+Chức năng: Định nghĩa danh mục các quyền hạn cố định trong hệ thống (ADMIN, PHOTOGRAPHER, MAKEUP).
+
+Vai trò: Làm mốc phân quyền cho toàn bộ hệ thống. Giúp cô lập quyền hạn, đảm bảo nhân viên (Photographer/Makeup) chỉ gọi được các API xem lịch làm việc và tuyệt đối không thể gọi các API can thiệp vào cấu hình hoặc doanh thu của Admin.
+
+users (Tài khoản người dùng)
+Chức năng: Lưu trữ thông tin định danh, thông tin đăng nhập (Username, Password mã hóa) và trạng thái hoạt động của toàn bộ nhân sự nội bộ thuộc Studio.
+
+Vai trò: Đóng vai trò là chốt chặn xác thực (Authentication). Bất kỳ ai muốn truy cập vào hệ thống quản trị (Dashboard) đều phải có một bản ghi hợp lệ tại đây.
+
+staff_profiles (Hồ sơ năng lực nhân viên)
+Chức năng: Lưu trữ thông tin giới thiệu, hình ảnh nghệ thuật, số năm kinh nghiệm và liên kết mạng xã hội (Facebook, TikTok) của từng nhiếp ảnh gia và chuyên viên trang điểm.
+
+Vai trò: Đây là bảng phục vụ cho việc truyền thông ở giao diện Frontend (End-User). Nó được tách riêng khỏi bảng users theo chuẩn 3NF để giao diện có thể thoải mái truy xuất dữ liệu hiển thị mà không làm rò rỉ các thông tin bảo mật của tài khoản.
+
+2. Nhóm Quản Lý Nội Dung Trực Quan (CMS & Marketing)
+studio_information (Thông tin Studio)
+Chức năng: Lưu trữ toàn bộ thông tin cấu hình tĩnh của tiệm như Hotline, địa chỉ Đà Nẵng, bản đồ số, quy trình làm việc, video giới thiệu tổng quan.
+
+Vai trò: Cung cấp dữ liệu tập trung cho trang "Giới thiệu" và phần Chân trang (Footer) của Website. Khi Studio đổi địa chỉ hoặc số điện thoại, Admin chỉ cần sửa 1 dòng duy nhất tại bảng này thay vì phải sửa code cứng ở Frontend.
+
+concepts (Chủ đề / Album Portfolio)
+Chức năng: Lưu tên, thể loại (Beauty, Bầu, Couple...) và trạng thái hiển thị của các bộ ảnh nghệ thuật mà Studio đã thực hiện thành công.
+
+Vai trò: Đóng vai trò phân loại và gom nhóm các tác phẩm hình ảnh. Giúp khách hàng dễ dàng lọc và tìm kiếm ý tưởng chụp theo đúng nhu cầu (Ví dụ: Chỉ muốn xem album chụp Beauty).
+
+concept_images (Bộ sưu tập ảnh chi tiết)
+Chức năng: Lưu trữ danh sách toàn bộ đường dẫn ảnh chất lượng cao (được upload trên Cloudinary/S3) thuộc về một Concept cụ thể.
+
+Vai trò: Giải quyết mối quan hệ một-nhiều (1 Concept có nhiều ảnh). Giúp tối ưu hóa tốc độ tải trang bằng cách cho phép Frontend gọi danh sách ảnh theo thứ tự sắp xếp (sort_order) có sẵn.
+
+service_packages (Gói dịch vụ / Bảng giá)
+Chức năng: Định nghĩa chi tiết bảng giá thương mại và các thông số kỹ thuật đi kèm của từng gói chụp (Số lượng trang phục, số bối cảnh layout, số file ảnh bàn giao, có makeup hay không).
+
+Vai trò: Là biểu giá pháp lý và thương mại hiển thị trên web. Dữ liệu từ bảng này giúp khách hàng ra quyết định chọn gói và làm căn cứ để hệ thống tính tiền tự động khi phát sinh Booking.
+
+blogs (Cẩm nang chia sẻ)
+Chức năng: Lưu trữ các bài viết chia sẻ kinh nghiệm chuẩn bị trước khi chụp ảnh, cách tạo dáng, chọn layout makeup phù hợp.
+
+Vai trò: Tăng điểm SEO cho Website trên Google và giữ chân khách hàng ở lại trang web lâu hơn thông qua nội dung hữu ích. Bảng này có liên kết với bảng concepts để khéo léo gợi ý cho khách xem các album thực tế liên quan đến nội dung bài viết.
+
+customer_stories (Đánh giá từ khách hàng)
+Chức năng: Lưu trữ những lời nhận xét, đánh giá chân thực (Feedback) và câu chuyện trải nghiệm của khách hàng cũ.
+
+Vai trò: Tạo dựng "bằng chứng xã hội" (Social Proof), gia tăng mức độ uy tín và tin cậy của Studio nhằm thuyết phục khách hàng mới đặt lịch.
+
+3. Nhóm Nghiệp Vụ Cốt Lõi (Core Business & Operations)
+bookings (Đơn đặt lịch chụp)
+Chức năng: Lưu trữ toàn bộ thông tin của một ca đặt lịch thành công, bao gồm thông tin liên hệ của khách, ngày giờ hẹn, gói dịch vụ đã chọn, địa điểm chụp và tổng số tiền phải trả.
+
+Vai trò: Là trái tim của toàn bộ hệ thống. Mọi luồng vận hành từ thanh toán, xếp lịch nhân sự đến xử lý hậu kỳ sau này đều phải xoay quanh dữ liệu của một bản ghi trong bảng này.
+
+booking_assignments (Điều phối phân công & Chống trùng lịch)
+Chức năng: Lưu trữ thông tin gán việc trực tiếp: Booking này do Photographer nào chụp và Makeup Artist nào phụ trách.
+
+Vai trò: Chốt chặn an toàn cho vận hành. Nhờ sử dụng cột dữ liệu tự động đồng bộ (Generated Columns) kết hợp với UNIQUE KEY, bảng này ngăn chặn tuyệt đối tình trạng một nhân viên bị điều phối đi chụp cho 2 khách hàng khác nhau trong cùng một khung giờ.
+
+booking_status_histories (Nhật ký trạng thái đơn đặt)
+Chức năng: Ghi lại dòng thời gian thay đổi trạng thái của lịch hẹn (Từ lúc PENDING -> Khách đặt cọc thành CONFIRMED -> Admin ASSIGNED nhân sự -> Hủy lịch CANCELLED).
+
+Vai trò: Làm tài liệu lịch sử (Audit Trail). Giúp chủ studio biết được chính xác ai là người đã thay đổi trạng thái lịch hẹn, vào thời điểm nào và lý do tại sao, ngăn chặn việc đổ lỗi hoặc gian lận trong quản lý.
+
+post_production_histories (Quản lý tiến độ hậu kỳ ảnh)
+Chức năng: Theo dõi sát sao quá trình làm việc của đội ngũ Photoshop sau khi chụp xong (Từ lúc ảnh thô UNPROCESSED -> EDITING -> Gửi link cho khách duyệt -> Đã bàn giao DELIVERED).
+
+Vai trò: Đảm bảo cam kết về thời gian bàn giao sản phẩm cho khách hàng. Lưu trữ các đường dẫn lưu trữ tổng (Drive/Dropbox) của cả ảnh gốc và ảnh đã chỉnh sửa để Admin có thể kiểm tra chất lượng sản phẩm bất cứ lúc nào.
