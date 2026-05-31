@@ -208,13 +208,17 @@ public class AdminServiceImpl implements AdminService {
     // =========================================================
 
     @Override
-    public List<PostProductionHistory> getPostProductions(ProductionStatus status) {
+    public List<PostProductionHistory> getPostProductions(ProductionStatus status, int page, int size) {
+        List<PostProductionHistory> list = postProductionHistoryRepository.findAllWithBookingAndUser();
         if (status != null) {
-            return postProductionHistoryRepository.findAllWithBookingAndUser().stream()
+            list = list.stream()
                     .filter(p -> p.getProductionStatus().name().equals(status.name()))
                     .collect(Collectors.toList());
         }
-        return postProductionHistoryRepository.findAllWithBookingAndUser();
+        return list.stream()
+                .skip((long) page * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -223,20 +227,65 @@ public class AdminServiceImpl implements AdminService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn đặt lịch với ID: " + bookingId));
 
-        PostProductionHistory history = PostProductionHistory.builder()
-                .booking(booking)
-                .productionStatus(request.getProductionStatus())
-                .rawPhotoLink(request.getRawPhotoLink())
-                .editedPhotoLink(request.getEditedPhotoLink())
-                .note(request.getNote())
-                .updatedBy(getAuthenticatedUser())
-                .build();
+        // Tìm bản ghi hậu kỳ hiện tại (bản ghi mới nhất) của booking này
+        List<PostProductionHistory> existing = postProductionHistoryRepository.findByBookingIdOrderByUpdatedAtDesc(bookingId);
 
-        PostProductionHistory saved = postProductionHistoryRepository.save(history);
+        PostProductionHistory record;
+        if (!existing.isEmpty()) {
+            // Cập nhật bản ghi hiện tại thay vì tạo mới
+            record = existing.get(0);
+            record.setProductionStatus(request.getProductionStatus());
+            record.setRawPhotoLink(request.getRawPhotoLink());
+            record.setEditedPhotoLink(request.getEditedPhotoLink());
+            record.setNote(request.getNote());
+            record.setUpdatedBy(getAuthenticatedUser());
+        } else {
+            // Không có bản ghi nào, tạo mới lần đầu
+            record = PostProductionHistory.builder()
+                    .booking(booking)
+                    .productionStatus(request.getProductionStatus())
+                    .rawPhotoLink(request.getRawPhotoLink())
+                    .editedPhotoLink(request.getEditedPhotoLink())
+                    .note(request.getNote())
+                    .updatedBy(getAuthenticatedUser())
+                    .build();
+        }
 
-        // Nếu trạng thái là bàn giao DELIVERED, tự động gửi email chứa link ảnh cho khách hàng
-        if (request.getProductionStatus() == ProductionStatus.DELIVERED && request.getEditedPhotoLink() != null) {
-            emailService.sendPhotosDelivered(booking, request.getEditedPhotoLink()); // Gửi mail bàn giao
+        PostProductionHistory saved = postProductionHistoryRepository.save(record);
+
+        // Nếu trạng thái là bàn giao DELIVERED
+        if (request.getProductionStatus() == ProductionStatus.DELIVERED) {
+            BookingStatus oldStatus = booking.getBookingStatus();
+            if (oldStatus != BookingStatus.COMPLETED) {
+                booking.setBookingStatus(BookingStatus.COMPLETED);
+                bookingRepository.save(booking);
+
+                // Ghi audit history chuyển sang hoàn thành
+                BookingStatusHistory completedHistory = BookingStatusHistory.builder()
+                        .booking(booking)
+                        .previousStatus(oldStatus)
+                        .newStatus(BookingStatus.COMPLETED)
+                        .note("Hệ thống tự động chuyển sang hoàn thành (COMPLETED) sau khi Admin bàn giao sản phẩm hình ảnh hoàn thiện.")
+                        .changedBy(getAuthenticatedUser())
+                        .build();
+                bookingStatusHistoryRepository.save(completedHistory);
+            }
+
+            // Gửi email bàn giao link ảnh
+            if (request.getEditedPhotoLink() != null && !request.getEditedPhotoLink().isBlank()) {
+                emailService.sendPhotosDelivered(booking, request.getEditedPhotoLink());
+            }
+
+            // Gửi email thông báo hoàn thành
+            emailService.sendBookingStatusUpdate(booking, "Bộ ảnh hoàn thiện của bạn đã được Admin bàn giao thành công. Leon Studio trân trọng cảm ơn quý khách!");
+        }
+        // Trạng thái trung gian khác
+        else {
+            if (request.getProductionStatus() == ProductionStatus.WAITING_APPROVAL) {
+                emailService.sendBookingStatusUpdate(booking, "Bộ ảnh của bạn đã được chuyển sang trạng thái 'Chờ khách duyệt'. Vui lòng kiểm tra và phản hồi với Studio.");
+            } else if (request.getProductionStatus() == ProductionStatus.EDITING) {
+                emailService.sendBookingStatusUpdate(booking, "Tiến độ hậu kỳ của bộ ảnh đã được chuyển sang trạng thái 'Đang chỉnh sửa'.");
+            }
         }
 
         return saved;
@@ -309,12 +358,17 @@ public class AdminServiceImpl implements AdminService {
     // =========================================================
 
     @Override
-    public List<StaffProfileResponse> getAllStaff() {
+    public List<StaffProfileResponse> getAllStaff(int page, int size) {
         return staffProfileRepository.findAllWithUserAndRole().stream()
+                .skip((long) page * size)
+                .limit(size)
                 .map(p -> StaffProfileResponse.builder()
                         .profileId(p.getId())
                         .userId(p.getUser().getId())
+                        .username(p.getUser().getUsername())
                         .fullName(p.getUser().getFullName())
+                        .email(p.getUser().getEmail())
+                        .phone(p.getUser().getPhone())
                         .roleName(p.getUser().getRole().getRoleName())
                         .avatarUrl(p.getAvatarUrl())
                         .bio(p.getBio())
@@ -323,16 +377,44 @@ public class AdminServiceImpl implements AdminService {
                         .facebookUrl(p.getFacebookUrl())
                         .instagramUrl(p.getInstagramUrl())
                         .tiktokUrl(p.getTiktokUrl())
+                        .isActive(p.getUser().getIsActive())
+                        .isDisplayed(p.getIsDisplayed())
                         .build())
                 .collect(Collectors.toList());
     }
 
+    // Overload with optional role filter
+    public List<StaffProfileResponse> getAllStaff(int page, int size, String roleName) {
+        return staffProfileRepository.findAllWithUserAndRole().stream()
+                .filter(p -> roleName == null || roleName.isBlank() ||
+                        p.getUser().getRole().getRoleName().equalsIgnoreCase(roleName))
+                .skip((long) page * size)
+                .limit(size)
+                .map(p -> StaffProfileResponse.builder()
+                        .profileId(p.getId())
+                        .userId(p.getUser().getId())
+                        .username(p.getUser().getUsername())
+                        .fullName(p.getUser().getFullName())
+                        .email(p.getUser().getEmail())
+                        .phone(p.getUser().getPhone())
+                        .roleName(p.getUser().getRole().getRoleName())
+                        .avatarUrl(p.getAvatarUrl())
+                        .bio(p.getBio())
+                        .experienceDetail(p.getExperienceDetail())
+                        .yearsOfExperience(p.getYearsOfExperience())
+                        .facebookUrl(p.getFacebookUrl())
+                        .instagramUrl(p.getInstagramUrl())
+                        .tiktokUrl(p.getTiktokUrl())
+                        .isActive(p.getUser().getIsActive())
+                        .isDisplayed(p.getIsDisplayed())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
     @Override
     @Transactional
     public StaffProfileResponse createStaff(StaffCreateRequest request) {
-        if (request.getAvatarUrl() == null || request.getAvatarUrl().isBlank()) {
-            throw new IllegalArgumentException("Vui lòng cung cấp tệp tin ảnh hoặc đường dẫn ảnh URL!");
-        }
 
         Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy vai trò với ID: " + request.getRoleId()));
@@ -366,7 +448,10 @@ public class AdminServiceImpl implements AdminService {
         return StaffProfileResponse.builder()
                 .profileId(savedProfile.getId())
                 .userId(savedUser.getId())
+                .username(savedUser.getUsername())
                 .fullName(savedUser.getFullName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
                 .roleName(role.getRoleName())
                 .avatarUrl(savedProfile.getAvatarUrl())
                 .bio(savedProfile.getBio())
@@ -375,6 +460,8 @@ public class AdminServiceImpl implements AdminService {
                 .facebookUrl(savedProfile.getFacebookUrl())
                 .instagramUrl(savedProfile.getInstagramUrl())
                 .tiktokUrl(savedProfile.getTiktokUrl())
+                .isActive(savedUser.getIsActive())
+                .isDisplayed(savedProfile.getIsDisplayed())
                 .build();
     }
 
@@ -384,7 +471,8 @@ public class AdminServiceImpl implements AdminService {
         StaffProfile profile = staffProfileRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ nhân sự với ID: " + id));
 
-        profile.setAvatarUrl(updatedProfile.getAvatarUrl());
+        // Update StaffProfile fields
+        if (updatedProfile.getAvatarUrl() != null) profile.setAvatarUrl(updatedProfile.getAvatarUrl());
         profile.setBio(updatedProfile.getBio());
         profile.setExperienceDetail(updatedProfile.getExperienceDetail());
         profile.setYearsOfExperience(updatedProfile.getYearsOfExperience());
@@ -393,11 +481,15 @@ public class AdminServiceImpl implements AdminService {
         profile.setTiktokUrl(updatedProfile.getTiktokUrl());
 
         StaffProfile saved = staffProfileRepository.save(profile);
+        User u = saved.getUser();
         return StaffProfileResponse.builder()
                 .profileId(saved.getId())
-                .userId(saved.getUser().getId())
-                .fullName(saved.getUser().getFullName())
-                .roleName(saved.getUser().getRole().getRoleName())
+                .userId(u.getId())
+                .username(u.getUsername())
+                .fullName(u.getFullName())
+                .email(u.getEmail())
+                .phone(u.getPhone())
+                .roleName(u.getRole().getRoleName())
                 .avatarUrl(saved.getAvatarUrl())
                 .bio(saved.getBio())
                 .experienceDetail(saved.getExperienceDetail())
@@ -405,6 +497,8 @@ public class AdminServiceImpl implements AdminService {
                 .facebookUrl(saved.getFacebookUrl())
                 .instagramUrl(saved.getInstagramUrl())
                 .tiktokUrl(saved.getTiktokUrl())
+                .isActive(u.getIsActive())
+                .isDisplayed(saved.getIsDisplayed())
                 .build();
     }
 
@@ -448,7 +542,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<CustomerSummaryResponse> getCustomers(String search) {
+    public List<CustomerSummaryResponse> getCustomers(String search, int page, int size) {
         List<Object[]> customerData = bookingRepository.findUniqueCustomers();
         List<CustomerSummaryResponse> result = new ArrayList<>();
 
@@ -488,7 +582,10 @@ public class AdminServiceImpl implements AdminService {
                     .build());
         }
 
-        return result;
+        return result.stream()
+                .skip((long) page * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     // =========================================================
@@ -496,8 +593,11 @@ public class AdminServiceImpl implements AdminService {
     // =========================================================
 
     @Override
-    public List<ServicePackage> getAllPackages() {
-        return servicePackageRepository.findAll();
+    public List<ServicePackage> getAllPackages(int page, int size) {
+        return servicePackageRepository.findAll().stream()
+                .skip((long) page * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -548,8 +648,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<Concept> getAllConcepts() {
-        return conceptRepository.findAll();
+    public List<Concept> getAllConcepts(int page, int size, ConceptType conceptType) {
+        java.util.stream.Stream<Concept> stream = conceptRepository.findAll().stream();
+        if (conceptType != null) {
+            stream = stream.filter(c -> c.getConceptType() == conceptType);
+        }
+        return stream
+                .skip((long) page * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -637,8 +744,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<Blog> getAllBlogs() {
-        return blogRepository.findAll();
+    public List<Blog> getAllBlogs(int page, int size) {
+        return blogRepository.findAll().stream()
+                .skip((long) page * size)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     @Override

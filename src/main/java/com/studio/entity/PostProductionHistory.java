@@ -44,9 +44,14 @@ public class PostProductionHistory {
     @JoinColumn(name = "updated_by", nullable = false, foreignKey = @ForeignKey(name = "fk_production_user"))
     private User updatedBy;
 
-    @Column(name = "updated_at", nullable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -245,12 +245,12 @@ GET /api/admin/bookings/1/history
 
 ## II. 🎬 GIÁM SÁT HẬU KỲ & BÀN GIAO SẢN PHẨM (POST-PRODUCTION)
 
-### 7. Theo dõi danh sách hậu kỳ toàn studio
+### 7. Theo dõi danh sách hậu kỳ toàn studio (có phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/admin/post-productions` |
-| **Đầu vào** | Query Param `status` *(tùy chọn)* |
+| **Đầu vào** | - Query Param `status` *(tùy chọn)*<br>- Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
 | **Mô tả** | Lấy toàn bộ tiến độ sản xuất, chỉnh sửa ảnh. Ngăn ngừa triệt để lỗi serialization nhờ nạp trước dữ liệu Eager |
 
 **Các trạng thái `status` hợp lệ:** `UNPROCESSED` `EDITING` `WAITING_APPROVAL` `DELIVERED`
@@ -378,12 +378,12 @@ GET /api/admin/dashboard/statistics
 
 ## IV. 👥 QUẢN LÝ NHÂN SỰ & KHÁCH HÀNG (STAFF & CUSTOMERS)
 
-### 11. Xem danh sách toàn bộ nhân sự
+### 11. Xem danh sách toàn bộ nhân sự (có phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/admin/staff` |
-| **Đầu vào** | Không có |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
 | **Mô tả** | Trả về thông tin đầy đủ và hồ sơ năng lực của tất cả nhân sự đang đăng ký tại hệ thống |
 
 **Mẫu Response (`200 OK`):**
@@ -497,12 +497,12 @@ POST /api/admin/staff/1/reset-password?newPassword=NewSecurePass123
 
 ---
 
-### 17. Quản lý tổng hợp tệp khách hàng
+### 17. Quản lý tổng hợp tệp khách hàng (có phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/admin/customers` |
-| **Đầu vào** | Query Param `search` *(tùy chọn, tìm theo tên hoặc SĐT)* |
+| **Đầu vào** | - Query Param `search` *(tùy chọn, tìm theo tên hoặc SĐT)*<br>- Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
 | **Mô tả** | Tổng hợp lịch sử đặt lịch từ trước đến nay của khách hàng, tổng số tiền họ đã thanh toán đủ |
 
 **Mẫu Request:**
@@ -530,12 +530,12 @@ GET /api/admin/customers?search=Nguyễn
 
 ## V. 📂 CMS NỘI DUNG & CẤU HÌNH HỆ THỐNG (CMS & CONFIG)
 
-### 18. Xem danh sách tất cả gói chụp ảnh (Admin GET List)
+### 18. Xem danh sách tất cả gói chụp ảnh (Admin GET List - có phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/admin/packages` |
-| **Đầu vào** | Không có |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
 | **Mô tả** | Lấy danh sách đầy đủ tất cả gói chụp ảnh nghệ thuật để hiển thị tại bảng điều khiển CMS của Admin |
 
 **Mẫu Request:**
@@ -623,12 +623,12 @@ GET /api/admin/packages/1
 
 ---
 
-### 23. Xem danh sách tất cả Concept (Admin GET List)
+### 23. Xem danh sách tất cả Concept (Admin GET List - có phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/admin/concepts` |
-| **Đầu vào** | Không có |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
 | **Mô tả** | Lấy toàn bộ danh sách concept chụp ảnh nghệ thuật để hiển thị quản lý tại trang Admin CMS |
 
 **Mẫu Request:**
@@ -726,12 +726,12 @@ GET /api/admin/concepts/1
 
 ---
 
-### 31. Xem danh sách tất cả bài viết Blog (Admin GET List)
+### 31. Xem danh sách tất cả bài viết Blog (Admin GET List - có phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/admin/blogs` |
-| **Đầu vào** | Không có |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
 | **Mô tả** | Trả về danh sách tất cả bài viết Blog phục vụ cho bảng quản trị bài viết CMS của Admin |
 
 **Mẫu Request:**
@@ -864,49 +864,49 @@ GET /api/admin/blogs/1
 
 ## 📊 Bảng tổng hợp nhanh (Admin APIs Matrix)
 
-| # | Method | Endpoint | Dữ liệu Đầu vào | Chế độ Cloudinary tự động |
-|---|---|---|---|---|
-| 1 | `GET` | `/api/admin/bookings` | `?page=&size=&status=` | — |
-| 2 | `GET` | `/api/admin/bookings/{id}` | Path: `id` | — |
-| 3 | `PUT` | `/api/admin/bookings/{id}/status` | `?status=&note=` | — (Tự động gửi email) |
-| 4 | `PUT` | `/api/admin/bookings/{id}/payment` | `?status=&method=` | — (Tự động gửi email) |
-| 5 | `POST` | `/api/admin/bookings/{id}/assign` | `?photographerId=&makeupId=` | — (Tự động gửi email) |
-| 6 | `GET` | `/api/admin/bookings/{id}/history` | Path: `id` | — (Đã miễn dịch lỗi JSON) |
-| 7 | `GET` | `/api/admin/post-productions` | `?status=` | — (Đã miễn dịch lỗi JSON) |
-| 8 | `PUT` | `/api/admin/bookings/{id}/post-production` | JSON Body 4 fields | — (Đã miễn dịch lỗi JSON) |
-| 9 | `GET` | `/api/admin/dashboard/revenue` | `?startDate=&endDate=` | — |
-| 10 | `GET` | `/api/admin/dashboard/statistics` | — | — |
-| 11 | `GET` | `/api/admin/staff` | — | — |
-| 12 | `POST` | `/api/admin/staff` | JSON / Multipart | ✅ `avatarFile` (avatars) |
-| 13 | `PUT` | `/api/admin/staff/{id}` | Path + JSON / Multipart | ✅ `avatarFile` (avatars) |
-| 14 | `PUT` | `/api/admin/staff/{id}/toggle-active` | Path: `id` | — |
-| 15 | `PUT` | `/api/admin/staff/{id}/toggle-display` | Path: `id` | — |
-| 16 | `POST` | `/api/admin/staff/{id}/reset-password` | Path + `?newPassword=` | — |
-| 17 | `GET` | `/api/admin/customers` | `?search=` | — |
-| 18 | `GET` | `/api/admin/packages` | — | — |
-| 19 | `GET` | `/api/admin/packages/{id}` | Path: `id` | — (Xem chi tiết để sửa) |
-| 20 | `POST` | `/api/admin/packages` | JSON / Multipart | ✅ `thumbnailFile` (packages) |
-| 21 | `PUT` | `/api/admin/packages/{id}` | Path + JSON / Multipart | ✅ `thumbnailFile` (packages) |
-| 22 | `DELETE`| `/api/admin/packages/{id}` | Path: `id` | — |
-| 23 | `GET` | `/api/admin/concepts` | — | — |
-| 24 | `GET` | `/api/admin/concepts/{id}` | Path: `id` | — (Xem chi tiết để sửa) |
-| 25 | `POST` | `/api/admin/concepts` | JSON / Multipart | ✅ `thumbnailFile` (concepts) |
-| 26 | `PUT` | `/api/admin/concepts/{id}` | Path + JSON / Multipart | ✅ `thumbnailFile` (concepts) |
-| 27 | `DELETE`| `/api/admin/concepts/{id}` | Path: `id` | — |
-| 28 | `POST` | `/api/admin/concepts/{id}/images` | Path + Multipart / URL | ✅ `file` (concepts) |
-| 29 | `DELETE`| `/api/admin/concepts/images/{imageId}` | Path: `imageId` | — |
-| 30 | `PUT` | `/api/admin/concepts/images/sort` | Array ID `[1, 2, 3...]` | — |
-| 31 | `GET` | `/api/admin/blogs` | — | — |
-| 32 | `GET` | `/api/admin/blogs/{id}` | Path: `id` | — (Xem chi tiết để sửa) |
-| 33 | `POST` | `/api/admin/blogs` | JSON / Multipart | ✅ `thumbnailFile` (blogs) |
-| 34 | `PUT` | `/api/admin/blogs/{id}` | Path + JSON / Multipart | ✅ `thumbnailFile` (blogs) |
-| 35 | `DELETE`| `/api/admin/blogs/{id}` | Path: `id` | — |
-| 36 | `POST` | `/api/admin/stories` | JSON / Multipart | ✅ `avatarFile`, `imageAfterFile` |
-| 37 | `PUT` | `/api/admin/stories/{id}` | Path + JSON / Multipart | ✅ `avatarFile`, `imageAfterFile` |
-| 38 | `DELETE`| `/api/admin/stories/{id}` | Path: `id` | — |
-| 39 | `GET` | `/api/admin/info` | — | — (Xem thông tin để sửa) |
-| 40 | `PUT` | `/api/admin/info` | JSON / Multipart | ✅ `logoFile`, `bannerFile` (studio) |
-| 41 | `POST` | `/api/admin/upload` | Multipart file | ✅ `file` (tùy chọn thư mục) |
+| #   | Method | Endpoint | Dữ liệu Đầu vào | Chế độ Cloudinary tự động |
+|-----|---|---|---|---|
+| 1.  | `GET` | `/api/admin/bookings` | `?page=&size=&status=` | — |
+| 2.  | `GET` | `/api/admin/bookings/{id}` | Path: `id` | — |
+| 3.  | `PUT` | `/api/admin/bookings/{id}/status` | `?status=&note=` | — (Tự động gửi email) |
+| 4.  | `PUT` | `/api/admin/bookings/{id}/payment` | `?status=&method=` | — (Tự động gửi email) |
+| 5.  | `POST` | `/api/admin/bookings/{id}/assign` | `?photographerId=&makeupId=` | — (Tự động gửi email) |
+| 6.  | `GET` | `/api/admin/bookings/{id}/history` | Path: `id` | — (Đã miễn dịch lỗi JSON) |
+| 7.  | `GET` | `/api/admin/post-productions` | `?status=&page=&size=` | — (Đã miễn dịch lỗi JSON) |
+| 8.  | `PUT` | `/api/admin/bookings/{id}/post-production` | JSON Body 4 fields | — (Đã miễn dịch lỗi JSON) |
+| 9.  | `GET` | `/api/admin/dashboard/revenue` | `?startDate=&endDate=` | — |
+| 10. | `GET` | `/api/admin/dashboard/statistics` | — | — |
+| 11. | `GET` | `/api/admin/staff` | `?page=&size=` | — |
+| 12. | `POST` | `/api/admin/staff` | JSON / Multipart | ✅ `avatarFile` (avatars) |
+| 13. | `PUT` | `/api/admin/staff/{id}` | Path + JSON / Multipart | ✅ `avatarFile` (avatars) |
+| 14. | `PUT` | `/api/admin/staff/{id}/toggle-active` | Path: `id` | — |
+| 15. | `PUT` | `/api/admin/staff/{id}/toggle-display` | Path: `id` | — |
+| 16. | `POST` | `/api/admin/staff/{id}/reset-password` | Path + `?newPassword=` | — |
+| 17. | `GET` | `/api/admin/customers` | `?search=&page=&size=` | — |
+| 18. | `GET` | `/api/admin/packages` | `?page=&size=` | — |
+| 19. | `GET` | `/api/admin/packages/{id}` | Path: `id` | — (Xem chi tiết để sửa) |
+| 20. | `POST` | `/api/admin/packages` | JSON / Multipart | ✅ `thumbnailFile` (packages) |
+| 21. | `PUT` | `/api/admin/packages/{id}` | Path + JSON / Multipart | ✅ `thumbnailFile` (packages) |
+| 22. | `DELETE`| `/api/admin/packages/{id}` | Path: `id` | — |
+| 23. | `GET` | `/api/admin/concepts` | `?page=&size=` | — |
+| 24. | `GET` | `/api/admin/concepts/{id}` | Path: `id` | — (Xem chi tiết để sửa) |
+| 25. | `POST` | `/api/admin/concepts` | JSON / Multipart | ✅ `thumbnailFile` (concepts) |
+| 26. | `PUT` | `/api/admin/concepts/{id}` | Path + JSON / Multipart | ✅ `thumbnailFile` (concepts) |
+| 27. | `DELETE`| `/api/admin/concepts/{id}` | Path: `id` | — |
+| 28. | `POST` | `/api/admin/concepts/{id}/images` | Path + Multipart / URL | ✅ `file` (concepts) |
+| 29. | `DELETE`| `/api/admin/concepts/images/{imageId}` | Path: `imageId` | — |
+| 30. | `PUT` | `/api/admin/concepts/images/sort` | Array ID `[1, 2, 3...]` | — |
+| 31. | `GET` | `/api/admin/blogs` | `?page=&size=` | — |
+| 32. | `GET` | `/api/admin/blogs/{id}` | Path: `id` | — (Xem chi tiết để sửa) |
+| 33. | `POST` | `/api/admin/blogs` | JSON / Multipart | ✅ `thumbnailFile` (blogs) |
+| 34. | `PUT` | `/api/admin/blogs/{id}` | Path + JSON / Multipart | ✅ `thumbnailFile` (blogs) |
+| 35. | `DELETE`| `/api/admin/blogs/{id}` | Path: `id` | — |
+| 36  | `POST` | `/api/admin/stories` | JSON / Multipart | ✅ `avatarFile`, `imageAfterFile` |
+| 37  | `PUT` | `/api/admin/stories/{id}` | Path + JSON / Multipart | ✅ `avatarFile`, `imageAfterFile` |
+| 38  | `DELETE`| `/api/admin/stories/{id}` | Path: `id` | — |
+| 39  | `GET` | `/api/admin/info` | — | — (Xem thông tin để sửa) |
+| 40  | `PUT` | `/api/admin/info` | JSON / Multipart | ✅ `logoFile`, `bannerFile` (studio) |
+| 41  | `POST` | `/api/admin/upload` | Multipart file | ✅ `file` (tùy chọn thư mục) |
 
 ---
 

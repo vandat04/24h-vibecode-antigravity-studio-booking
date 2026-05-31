@@ -20,7 +20,7 @@ public interface AdminService {
     List<BookingStatusHistory> getBookingHistory(Long id);
 
     // II. Giám sát & Quản lý Hậu kỳ
-    List<PostProductionHistory> getPostProductions(ProductionStatus status);
+    List<PostProductionHistory> getPostProductions(ProductionStatus status, int page, int size);
     PostProductionHistory updatePostProduction(Long bookingId, PostProductionUpdateRequest request);
 
     // III. Báo cáo & Thống kê (Dashboard)
@@ -28,7 +28,8 @@ public interface AdminService {
     Map<String, Object> getDashboardStatistics();
 
     // IV. Quản lý Nhân sự & Khách hàng
-    List<StaffProfileResponse> getAllStaff();
+    List<StaffProfileResponse> getAllStaff(int page, int size);
+    List<StaffProfileResponse> getAllStaff(int page, int size, String role);
     StaffProfileResponse createStaff(StaffCreateRequest request);
     StaffProfileResponse createStaff(StaffCreateRequest request, org.springframework.web.multipart.MultipartFile avatarFile);
     StaffProfileResponse updateStaff(Long id, StaffProfile profile);
@@ -36,10 +37,10 @@ public interface AdminService {
     void toggleStaffActive(Long id);
     void toggleStaffDisplay(Long id);
     void resetStaffPassword(Long id, String newPassword);
-    List<CustomerSummaryResponse> getCustomers(String search);
+    List<CustomerSummaryResponse> getCustomers(String search, int page, int size);
 
     // V. CMS Nội dung & Gói chụp, Concept, Portfolio Images, Blogs, Stories, Cấu hình
-    List<ServicePackage> getAllPackages();
+    List<ServicePackage> getAllPackages(int page, int size);
     ServicePackage getPackageById(Long id);
     ServicePackage createPackage(ServicePackage pkg);
     ServicePackage createPackage(ServicePackage pkg, org.springframework.web.multipart.MultipartFile thumbnailFile);
@@ -47,7 +48,7 @@ public interface AdminService {
     ServicePackage updatePackage(Long id, ServicePackage pkg, org.springframework.web.multipart.MultipartFile thumbnailFile);
     void deletePackage(Long id);
 
-    List<Concept> getAllConcepts();
+    List<Concept> getAllConcepts(int page, int size, ConceptType conceptType);
     Concept getConceptById(Long id);
     Concept createConcept(Concept concept);
     Concept createConcept(Concept concept, org.springframework.web.multipart.MultipartFile thumbnailFile);
@@ -59,7 +60,7 @@ public interface AdminService {
     void deleteConceptImage(Long imageId);
     void reorderConceptImages(List<Long> imageIds);
 
-    List<Blog> getAllBlogs();
+    List<Blog> getAllBlogs(int page, int size);
     Blog getBlogById(Long id);
     Blog createBlog(Blog blog, Long conceptId);
     Blog createBlog(Blog blog, Long conceptId, org.springframework.web.multipart.MultipartFile thumbnailFile);

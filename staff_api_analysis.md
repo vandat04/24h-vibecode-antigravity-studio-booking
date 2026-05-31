@@ -8,14 +8,14 @@
 
 ---
 
-## 1. 📅 Xem danh sách lịch làm việc cá nhân
+## 1. 📅 Xem danh sách lịch làm việc cá nhân (có phân trang)
 
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/staff/bookings` |
-| **Đầu vào** | Không có |
-| **Mô tả** | Lấy toàn bộ danh sách các ca làm việc (lịch chụp) mà nhân sự đang đăng nhập được Admin phân công (`booking_assignments`). Hỗ trợ hiển thị dạng Danh sách hoặc nạp vào dạng Lịch (Calendar) tuần/tháng. |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
+| **Mô tả** | Lấy danh sách phân trang các ca làm việc (lịch chụp) mà nhân sự đang đăng nhập được Admin phân công (`booking_assignments`). Hỗ trợ hiển thị dạng Danh sách hoặc nạp vào dạng Lịch (Calendar) tuần/tháng. |
 
 **Mẫu Request:**
 ```
@@ -227,7 +227,7 @@ Thay đổi mật khẩu thành công!
 
 | # | Method | Endpoint | Quyền hạn truy cập | Kết quả trả về |
 |---|---|---|---|---|
-| 1 | `GET` | `/api/staff/bookings` | `PHOTOGRAPHER`, `MAKEUP` | Array danh sách lịch chụp cá nhân |
+| 1 | `GET` | `/api/staff/bookings` | `PHOTOGRAPHER`, `MAKEUP` | Array danh sách lịch chụp cá nhân (phân trang) |
 | 2 | `GET` | `/api/staff/bookings/{id}` | Lọc theo Phân công thực tế | Object chi tiết ca chụp và đồng nghiệp |
 | 3 | `POST` | `/api/staff/bookings/{id}/makeup-complete` | Chỉ `MAKEUP` | Xác nhận hoàn tất trang điểm |
 | 4 | `PUT` | `/api/staff/bookings/{id}/post-production` | Chỉ `PHOTOGRAPHER` | Cập nhật link ảnh hậu kỳ & gửi mail |

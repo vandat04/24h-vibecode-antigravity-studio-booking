@@ -74,8 +74,10 @@ public class AdminController {
     // =========================================================
     @GetMapping("/post-productions")
     public ResponseEntity<List<PostProductionHistory>> getPostProductions(
-            @RequestParam(required = false) ProductionStatus status) {
-        return ResponseEntity.ok(adminService.getPostProductions(status));
+            @RequestParam(required = false) ProductionStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getPostProductions(status, page, size));
     }
 
     @PutMapping("/bookings/{bookingId}/post-production")
@@ -104,8 +106,11 @@ public class AdminController {
     // IV. QUẢN LÝ NHÂN SỰ & KHÁCH HÀNG (STAFF & CUSTOMERS)
     // =========================================================
     @GetMapping("/staff")
-    public ResponseEntity<List<StaffProfileResponse>> getAllStaff() {
-        return ResponseEntity.ok(adminService.getAllStaff());
+    public ResponseEntity<List<StaffProfileResponse>> getAllStaff(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String role) {
+        return ResponseEntity.ok(adminService.getAllStaff(page, size, role));
     }
 
     @PostMapping(value = "/staff", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -154,16 +159,21 @@ public class AdminController {
     }
 
     @GetMapping("/customers")
-    public ResponseEntity<List<CustomerSummaryResponse>> getCustomers(@RequestParam(required = false) String search) {
-        return ResponseEntity.ok(adminService.getCustomers(search));
+    public ResponseEntity<List<CustomerSummaryResponse>> getCustomers(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getCustomers(search, page, size));
     }
 
     // =========================================================
     // V. CMS NỘI DUNG & CẤU HÌNH HỆ THỐNG (CMS)
     // =========================================================
     @GetMapping("/packages")
-    public ResponseEntity<List<ServicePackage>> getAllPackages() {
-        return ResponseEntity.ok(adminService.getAllPackages());
+    public ResponseEntity<List<ServicePackage>> getAllPackages(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getAllPackages(page, size));
     }
 
     @GetMapping("/packages/{id}")
@@ -202,8 +212,11 @@ public class AdminController {
     }
 
     @GetMapping("/concepts")
-    public ResponseEntity<List<Concept>> getAllConcepts() {
-        return ResponseEntity.ok(adminService.getAllConcepts());
+    public ResponseEntity<List<Concept>> getAllConcepts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) ConceptType conceptType) {
+        return ResponseEntity.ok(adminService.getAllConcepts(page, size, conceptType));
     }
 
     @GetMapping("/concepts/{id}")
@@ -264,8 +277,10 @@ public class AdminController {
     }
 
     @GetMapping("/blogs")
-    public ResponseEntity<List<Blog>> getAllBlogs() {
-        return ResponseEntity.ok(adminService.getAllBlogs());
+    public ResponseEntity<List<Blog>> getAllBlogs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getAllBlogs(page, size));
     }
 
     @GetMapping("/blogs/{id}")

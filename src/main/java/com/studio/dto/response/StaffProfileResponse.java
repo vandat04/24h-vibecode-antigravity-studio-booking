@@ -8,7 +8,10 @@ import lombok.Getter;
 public class StaffProfileResponse {
     private Long profileId;
     private Long userId;
+    private String username;
     private String fullName;
+    private String email;
+    private String phone;
     private String roleName;
     private String avatarUrl;
     private String bio;
@@ -17,4 +20,6 @@ public class StaffProfileResponse {
     private String facebookUrl;
     private String instagramUrl;
     private String tiktokUrl;
+    private Boolean isActive;
+    private Boolean isDisplayed;
 }

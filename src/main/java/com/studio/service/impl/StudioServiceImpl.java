@@ -68,7 +68,7 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public List<ConceptSummaryResponse> getConcepts(ConceptType type) {
+    public List<ConceptSummaryResponse> getConcepts(ConceptType type, int page, int size) {
         List<Concept> concepts = conceptRepository.findByStatus(PublishStatus.PUBLISHED);
 
         if (type != null) {
@@ -78,6 +78,8 @@ public class StudioServiceImpl implements StudioService {
         }
 
         return concepts.stream()
+                .skip((long) page * size)
+                .limit(size)
                 .map(c -> ConceptSummaryResponse.builder()
                         .id(c.getId())
                         .title(c.getTitle())
@@ -155,9 +157,11 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public List<ServicePackageResponse> getPackages() {
+    public List<ServicePackageResponse> getPackages(int page, int size) {
         return servicePackageRepository.findByIsActiveTrue()
                 .stream()
+                .skip((long) page * size)
+                .limit(size)
                 .map(this::toPackageResponse)
                 .collect(Collectors.toList());
     }
@@ -170,7 +174,7 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public List<StaffProfileResponse> getStaff(String role) {
+    public List<StaffProfileResponse> getStaff(String role, int page, int size) {
         List<StaffProfile> profiles = staffProfileRepository.findAll()
                 .stream()
                 .filter(StaffProfile::getIsDisplayed)
@@ -184,6 +188,8 @@ public class StudioServiceImpl implements StudioService {
         }
 
         return profiles.stream()
+                .skip((long) page * size)
+                .limit(size)
                 .map(p -> StaffProfileResponse.builder()
                         .profileId(p.getId())
                         .userId(p.getUser().getId())
@@ -201,10 +207,12 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public List<BlogSummaryResponse> getBlogs() {
+    public List<BlogSummaryResponse> getBlogs(int page, int size) {
         return blogRepository
                 .findByStatusOrderByCreatedAtDesc(PublishStatus.PUBLISHED)
                 .stream()
+                .skip((long) page * size)
+                .limit(size)
                 .map(b -> BlogSummaryResponse.builder()
                         .id(b.getId())
                         .title(b.getTitle())
@@ -254,10 +262,12 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public List<CustomerStoryResponse> getCustomerStories() {
+    public List<CustomerStoryResponse> getCustomerStories(int page, int size) {
         return customerStoryRepository
                 .findByIsDisplayedTrueOrderByCreatedAtDesc()
                 .stream()
+                .skip((long) page * size)
+                .limit(size)
                 .map(s -> CustomerStoryResponse.builder()
                         .id(s.getId())
                         .customerName(s.getCustomerName())

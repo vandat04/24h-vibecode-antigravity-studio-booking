@@ -57,13 +57,23 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public List<AdminBookingResponse> getMyBookings() {
+    public List<AdminBookingResponse> getMyBookings(int page, int size) {
         User staff = getAuthenticatedUser();
         List<BookingAssignment> assignments = bookingAssignmentRepository.findByStaffId(staff.getId());
         
         return assignments.stream()
                 .map(BookingAssignment::getBooking)
+                .sorted((b1, b2) -> {
+                    java.time.LocalDateTime c1 = b1.getCreatedAt();
+                    java.time.LocalDateTime c2 = b2.getCreatedAt();
+                    if (c1 == null && c2 == null) return 0;
+                    if (c1 == null) return 1;
+                    if (c2 == null) return -1;
+                    return c2.compareTo(c1);
+                })
                 .map(this::toAdminBookingResponse)
+                .skip((long) page * size)
+                .limit(size)
                 .collect(Collectors.toList());
     }
 
@@ -100,6 +110,9 @@ public class StaffServiceImpl implements StaffService {
                 .build();
         
         bookingStatusHistoryRepository.save(history);
+
+        // Gửi email thông báo cho khách hàng
+        emailService.sendBookingStatusUpdate(booking, "Chuyên viên trang điểm " + staff.getFullName() + " đã hoàn thành xong phần makeup nghệ thuật của bạn. Ca chụp hình đã sẵn sàng bắt đầu!");
     }
 
     @Override
@@ -127,9 +140,11 @@ public class StaffServiceImpl implements StaffService {
         PostProductionHistory saved = postProductionHistoryRepository.save(history);
 
         // Tự động cập nhật trạng thái đơn chụp sang EDITING nếu Photographer bắt đầu hậu kỳ
+        boolean autoTransitionToEditing = false;
         if (booking.getBookingStatus() == BookingStatus.ASSIGNED || booking.getBookingStatus() == BookingStatus.CONFIRMED) {
             booking.setBookingStatus(BookingStatus.EDITING);
             bookingRepository.save(booking);
+            autoTransitionToEditing = true;
             
             // Ghi audit history
             BookingStatusHistory bookingHistory = BookingStatusHistory.builder()
@@ -140,11 +155,44 @@ public class StaffServiceImpl implements StaffService {
                     .changedBy(staff)
                     .build();
             bookingStatusHistoryRepository.save(bookingHistory);
+
+            // Gửi email thông báo bắt đầu hậu kỳ
+            emailService.sendBookingStatusUpdate(booking, "Nhiếp ảnh gia " + staff.getFullName() + " đã tiếp nhận và bắt đầu xử lý, chỉnh sửa hậu kỳ cho bộ ảnh của bạn.");
         }
 
-        // Nếu trạng thái là bàn giao DELIVERED, tự động gửi email chứa link ảnh cho khách hàng
-        if (request.getProductionStatus() == com.studio.constant.ProductionStatus.DELIVERED && request.getEditedPhotoLink() != null) {
-            emailService.sendPhotosDelivered(booking, request.getEditedPhotoLink());
+        // Nếu trạng thái là bàn giao DELIVERED
+        if (request.getProductionStatus() == com.studio.constant.ProductionStatus.DELIVERED) {
+            BookingStatus oldStatus = booking.getBookingStatus();
+            if (oldStatus != BookingStatus.COMPLETED) {
+                booking.setBookingStatus(BookingStatus.COMPLETED);
+                bookingRepository.save(booking);
+
+                // Ghi audit history chuyển sang hoàn thành
+                BookingStatusHistory completedHistory = BookingStatusHistory.builder()
+                        .booking(booking)
+                        .previousStatus(oldStatus)
+                        .newStatus(BookingStatus.COMPLETED)
+                        .note("Hệ thống tự động chuyển sang hoàn thành (COMPLETED) sau khi Nhiếp ảnh gia bàn giao sản phẩm hoàn thiện.")
+                        .changedBy(staff)
+                        .build();
+                bookingStatusHistoryRepository.save(completedHistory);
+            }
+
+            // Gửi email bàn giao link ảnh
+            if (request.getEditedPhotoLink() != null && !request.getEditedPhotoLink().isBlank()) {
+                emailService.sendPhotosDelivered(booking, request.getEditedPhotoLink());
+            }
+            
+            // Gửi email thông báo cập nhật trạng thái hoàn thành
+            emailService.sendBookingStatusUpdate(booking, "Bộ ảnh hoàn thiện của bạn đã được bàn giao thành công. Leon Studio trân trọng cảm ơn quý khách!");
+        } 
+        // Trạng thái trung gian khác (chỉ gửi khi không tự động kích hoạt EDITING ở trên để tránh trùng mail)
+        else if (!autoTransitionToEditing) {
+            if (request.getProductionStatus() == com.studio.constant.ProductionStatus.WAITING_APPROVAL) {
+                emailService.sendBookingStatusUpdate(booking, "Bộ ảnh của bạn đã được tải lên và đang ở trạng thái 'Chờ duyệt'. Vui lòng kiểm tra và duyệt ảnh cùng ê kíp.");
+            } else if (request.getProductionStatus() == com.studio.constant.ProductionStatus.EDITING) {
+                emailService.sendBookingStatusUpdate(booking, "Nhiếp ảnh gia đang trong tiến trình tinh chỉnh chi tiết và blend màu nghệ thuật cho album ảnh.");
+            }
         }
 
         return saved;

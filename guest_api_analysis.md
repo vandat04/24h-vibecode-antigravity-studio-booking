@@ -33,13 +33,13 @@
 }
 ```
 
-## 2. 🎨 Xem danh sách Concept (có lọc chủ đề)
+## 2. 🎨 Xem danh sách Concept (có lọc chủ đề & phân trang)
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/studio/concepts` |
-| **Đầu vào** | Query Param `type` *(tùy chọn)* |
-| **Mô tả** | Lấy danh sách các concept đang PUBLISHED. Hỗ trợ lọc theo chủ đề |
+| **Đầu vào** | - Query Param `type` *(tùy chọn)*<br>- Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
+| **Mô tả** | Lấy danh sách các concept đang PUBLISHED. Hỗ trợ lọc theo chủ đề và phân trang |
 
 **Các giá trị `type` hợp lệ:**
 `BEAUTY` `COUPLE` `BIRTHDAY` `FAMILY` `OUTDOOR` `EVENT` `OTHER`
@@ -122,14 +122,14 @@ GET /api/studio/concepts/sweet-angel
 
 ---
 
-## 4. 💼 Xem danh sách gói dịch vụ
+## 4. 💼 Xem danh sách gói dịch vụ (có phân trang)
 
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/studio/packages` |
-| **Đầu vào** | Không có |
-| **Mô tả** | Lấy danh sách tất cả gói chụp ảnh đang kinh doanh (`is_active = true`) |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
+| **Mô tả** | Lấy danh sách tất cả gói chụp ảnh đang kinh doanh (`is_active = true`), hỗ trợ phân trang |
 
 **Mẫu Request:**
 ```
@@ -206,14 +206,14 @@ GET /api/studio/packages/goi-chup-luxury
 
 ---
 
-## 6. 👥 Xem đội ngũ nhân sự
+## 6. 👥 Xem đội ngũ nhân sự (có phân trang)
 
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/studio/staff` |
-| **Đầu vào** | Query Param `role` *(tùy chọn)* |
-| **Mô tả** | Lấy danh sách nhân sự đang hiển thị trên website. Lọc theo vai trò |
+| **Đầu vào** | - Query Param `role` *(tùy chọn)*<br>- Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
+| **Mô tả** | Lấy danh sách nhân sự đang hiển thị trên website. Lọc theo vai trò và hỗ trợ phân trang |
 
 **Các giá trị `role` hợp lệ:** `PHOTOGRAPHER` `MAKEUP`
 
@@ -258,14 +258,14 @@ GET /api/studio/staff?role=MAKEUP
 
 ---
 
-## 7. 📝 Xem danh sách bài viết Blog
+## 7. 📝 Xem danh sách bài viết Blog (có phân trang)
 
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/studio/blogs` |
-| **Đầu vào** | Không có |
-| **Mô tả** | Lấy danh sách bài viết đã PUBLISHED, sắp xếp mới nhất trước |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
+| **Mô tả** | Lấy danh sách bài viết đã PUBLISHED, sắp xếp mới nhất trước, hỗ trợ phân trang |
 
 **Mẫu Request:**
 ```
@@ -344,14 +344,14 @@ GET /api/studio/blogs/meo-tao-dang-tu-nhien
 
 ---
 
-## 9. ⭐ Xem đánh giá khách hàng (Before/After)
+## 9. ⭐ Xem đánh giá khách hàng (Before/After - có phân trang)
 
 | Thuộc tính | Giá trị |
 |---|---|
 | **Method** | `GET` |
 | **Endpoint** | `/api/studio/stories` |
-| **Đầu vào** | Không có |
-| **Mô tả** | Lấy feedback của khách hàng có `is_displayed = true`, kèm ảnh Before & After |
+| **Đầu vào** | - Query Param `page` *(mặc định 0)*<br>- Query Param `size` *(mặc định 10)* |
+| **Mô tả** | Lấy feedback của khách hàng có `is_displayed = true`, kèm ảnh Before & After, hỗ trợ phân trang |
 
 **Mẫu Request:**
 ```
@@ -620,14 +620,14 @@ GET /api/studio/bookings/lookup?phone=0901234567&code=STB-20250720-A3FBX
 | # | Method | Endpoint | Đầu vào | Kết quả |
 |---|---|---|---|---|
 | 1 | `GET` | `/api/studio/info` | — | Object thông tin studio |
-| 2 | `GET` | `/api/studio/concepts` | `?type=BEAUTY` *(opt)* | Array danh sách concept |
+| 2 | `GET` | `/api/studio/concepts` | `?type=&page=&size=` *(opt)* | Array danh sách concept |
 | 3 | `GET` | `/api/studio/concepts/{slug}` | Path: `slug` | Object concept + array ảnh |
-| 4 | `GET` | `/api/studio/packages` | — | Array danh sách gói |
+| 4 | `GET` | `/api/studio/packages` | `?page=&size=` *(opt)* | Array danh sách gói |
 | 5 | `GET` | `/api/studio/packages/{slug}` | Path: `slug` | Object chi tiết gói |
-| 6 | `GET` | `/api/studio/staff` | `?role=PHOTOGRAPHER` *(opt)* | Array danh sách nhân sự |
-| 7 | `GET` | `/api/studio/blogs` | — | Array danh sách blog |
+| 6 | `GET` | `/api/studio/staff` | `?role=&page=&size=` *(opt)* | Array danh sách nhân sự |
+| 7 | `GET` | `/api/studio/blogs` | `?page=&size=` *(opt)* | Array danh sách blog |
 | 8 | `GET` | `/api/studio/blogs/{slug}` | Path: `slug` | Object bài viết + concept gợi ý |
-| 9 | `GET` | `/api/studio/stories` | — | Array feedback Before/After |
+| 9 | `GET` | `/api/studio/stories` | `?page=&size=` *(opt)* | Array feedback Before/After |
 | 10 | `GET` | `/api/studio/bookings/schedule` | `?date=yyyy-MM-dd` *(bắt buộc)* | Object slot đã đặt + còn trống (đã lọc giữ chỗ) |
 | 10b| `POST` | `/api/studio/bookings/hold` | JSON Body 2 fields | Giữ chỗ slot chụp tạm thời trong 10 phút |
 | 11 | `POST` | `/api/studio/bookings` | JSON Body 10 or 11 fields | Đặt lịch trực tuyến (hỗ trợ `@FutureOrPresent` & `holdToken`) |

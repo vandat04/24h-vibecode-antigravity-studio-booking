@@ -34,8 +34,10 @@ public class StudioController {
     // =========================================================
     @GetMapping("/concepts")
     public ResponseEntity<List<ConceptSummaryResponse>> getConcepts(
-            @RequestParam(required = false) ConceptType type) {
-        return ResponseEntity.ok(studioService.getConcepts(type));
+            @RequestParam(required = false) ConceptType type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(studioService.getConcepts(type, page, size));
     }
 
     @GetMapping("/concepts/{slug}")
@@ -47,8 +49,10 @@ public class StudioController {
     // 3. SERVICE PACKAGES
     // =========================================================
     @GetMapping("/packages")
-    public ResponseEntity<List<ServicePackageResponse>> getPackages() {
-        return ResponseEntity.ok(studioService.getPackages());
+    public ResponseEntity<List<ServicePackageResponse>> getPackages(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(studioService.getPackages(page, size));
     }
 
     @GetMapping("/packages/{slug}")
@@ -61,16 +65,20 @@ public class StudioController {
     // =========================================================
     @GetMapping("/staff")
     public ResponseEntity<List<StaffProfileResponse>> getStaff(
-            @RequestParam(required = false) String role) {
-        return ResponseEntity.ok(studioService.getStaff(role));
+            @RequestParam(required = false) String role,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(studioService.getStaff(role, page, size));
     }
 
     // =========================================================
     // 5. BLOGS
     // =========================================================
     @GetMapping("/blogs")
-    public ResponseEntity<List<BlogSummaryResponse>> getBlogs() {
-        return ResponseEntity.ok(studioService.getBlogs());
+    public ResponseEntity<List<BlogSummaryResponse>> getBlogs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(studioService.getBlogs(page, size));
     }
 
     @GetMapping("/blogs/{slug}")
@@ -82,8 +90,10 @@ public class StudioController {
     // 6. CUSTOMER STORIES
     // =========================================================
     @GetMapping("/stories")
-    public ResponseEntity<List<CustomerStoryResponse>> getCustomerStories() {
-        return ResponseEntity.ok(studioService.getCustomerStories());
+    public ResponseEntity<List<CustomerStoryResponse>> getCustomerStories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(studioService.getCustomerStories(page, size));
     }
 
     // =========================================================

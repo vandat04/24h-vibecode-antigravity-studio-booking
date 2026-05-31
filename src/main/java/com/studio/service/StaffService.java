@@ -8,7 +8,7 @@ import com.studio.entity.PostProductionHistory;
 import java.util.List;
 
 public interface StaffService {
-    List<AdminBookingResponse> getMyBookings();
+    List<AdminBookingResponse> getMyBookings(int page, int size);
     AdminBookingResponse getMyBookingDetail(Long bookingId);
     void confirmMakeupComplete(Long bookingId);
     PostProductionHistory updateMyPostProduction(Long bookingId, PostProductionUpdateRequest request);

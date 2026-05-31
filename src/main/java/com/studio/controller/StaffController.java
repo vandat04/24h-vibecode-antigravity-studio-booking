@@ -20,8 +20,10 @@ public class StaffController {
     private final StaffService staffService;
 
     @GetMapping("/bookings")
-    public ResponseEntity<List<AdminBookingResponse>> getMyBookings() {
-        return ResponseEntity.ok(staffService.getMyBookings());
+    public ResponseEntity<List<AdminBookingResponse>> getMyBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(staffService.getMyBookings(page, size));
     }
 
     @GetMapping("/bookings/{id}")
