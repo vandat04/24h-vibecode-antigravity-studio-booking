@@ -249,5 +249,3 @@ CREATE INDEX idx_concepts_lookup ON concepts(slug, status);
 CREATE INDEX idx_packages_lookup ON service_packages(slug, is_active);
 CREATE INDEX idx_booking_holds_expired ON booking_holds(hold_expired_at);
 CREATE INDEX idx_booking_holds_slot ON booking_holds(shoot_date, shoot_time_slot);
-CREATE INDEX idx_booking_holds_expired ON booking_holds(hold_expired_at);
-CREATE INDEX idx_booking_holds_slot ON booking_holds(shoot_date, shoot_time_slot);
