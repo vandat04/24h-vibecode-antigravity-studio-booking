@@ -60,6 +60,8 @@ public class StudioServiceImpl implements StudioService {
                 .facebookUrl(info.getFacebookUrl())
                 .zaloUrl(info.getZaloUrl())
                 .youtubeUrl(info.getYoutubeUrl())
+                .instagramUrl(info.getInstagramUrl())
+                .tiktokUrl(info.getTiktokUrl())
                 .introVideoUrl(info.getIntroVideoUrl())
                 .introduction(info.getIntroduction())
                 .workingProcess(info.getWorkingProcess())

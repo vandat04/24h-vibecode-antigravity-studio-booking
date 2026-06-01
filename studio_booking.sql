@@ -249,3 +249,13 @@ CREATE INDEX idx_concepts_lookup ON concepts(slug, status);
 CREATE INDEX idx_packages_lookup ON service_packages(slug, is_active);
 CREATE INDEX idx_booking_holds_expired ON booking_holds(hold_expired_at);
 CREATE INDEX idx_booking_holds_slot ON booking_holds(shoot_date, shoot_time_slot);
+
+
+-- 1. Bổ sung 2 cột mới vào bảng thông tin studio
+ALTER TABLE studio_information ADD COLUMN instagram_url VARCHAR(255) NULL;
+ALTER TABLE studio_information ADD COLUMN tiktok_url VARCHAR(255) NULL;
+-- 2. Cập nhật dữ liệu mẫu (Bạn thay link Instagram và Tiktok của Studio vào đây nhé)
+UPDATE studio_information
+SET instagram_url = 'https://www.instagram.com/leonstudio.concept/',
+    tiktok_url = 'https://www.tiktok.com/@leonstudio.concept'
+WHERE id = 1;

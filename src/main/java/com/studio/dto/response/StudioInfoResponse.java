@@ -16,6 +16,8 @@ public class StudioInfoResponse {
     private String facebookUrl;
     private String zaloUrl;
     private String youtubeUrl;
+    private String instagramUrl;
+    private String tiktokUrl;
     private String introVideoUrl;
     private String introduction;
     private String workingProcess;

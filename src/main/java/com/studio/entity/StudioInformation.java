@@ -44,6 +44,12 @@ public class StudioInformation {
     @Column(name = "youtube_url", length = 255)
     private String youtubeUrl;
 
+    @Column(name = "instagram_url", length = 255)
+    private String instagramUrl;
+
+    @Column(name = "tiktok_url", length = 255)
+    private String tiktokUrl;
+
     @Column(name = "intro_video_url", length = 255)
     private String introVideoUrl;
 

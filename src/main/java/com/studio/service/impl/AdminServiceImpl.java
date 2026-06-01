@@ -853,6 +853,8 @@ public class AdminServiceImpl implements AdminService {
         info.setFacebookUrl(updated.getFacebookUrl());
         info.setZaloUrl(updated.getZaloUrl());
         info.setYoutubeUrl(updated.getYoutubeUrl());
+        info.setInstagramUrl(updated.getInstagramUrl());
+        info.setTiktokUrl(updated.getTiktokUrl());
         info.setIntroVideoUrl(updated.getIntroVideoUrl());
         info.setIntroduction(updated.getIntroduction());
         info.setWorkingProcess(updated.getWorkingProcess());
