@@ -470,15 +470,16 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public StaffProfileResponse updateStaff(Long id, StaffProfile updatedProfile) {
+    public StaffProfileResponse updateStaff(Long id, StaffUpdateRequest updatedProfile) {
         StaffProfile profile = staffProfileRepository.findById(id).orElse(null);
         if (profile == null) {
             profile = staffProfileRepository.findByUserId(id).orElse(null);
         }
 
+        User user;
         if (profile == null) {
             // Create a brand new StaffProfile for this user (e.g. for the ADMIN)
-            User user = userRepository.findById(id)
+            user = userRepository.findById(id)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản nhân viên với ID: " + id));
             profile = StaffProfile.builder()
                     .user(user)
@@ -492,6 +493,7 @@ public class AdminServiceImpl implements AdminService {
                     .isDisplayed(updatedProfile.getIsDisplayed() != null ? updatedProfile.getIsDisplayed() : true)
                     .build();
         } else {
+            user = profile.getUser();
             // Update StaffProfile fields
             if (updatedProfile.getAvatarUrl() != null) profile.setAvatarUrl(updatedProfile.getAvatarUrl());
             profile.setBio(updatedProfile.getBio());
@@ -500,8 +502,28 @@ public class AdminServiceImpl implements AdminService {
             profile.setFacebookUrl(updatedProfile.getFacebookUrl());
             profile.setInstagramUrl(updatedProfile.getInstagramUrl());
             profile.setTiktokUrl(updatedProfile.getTiktokUrl());
+            if (updatedProfile.getIsDisplayed() != null) {
+                profile.setIsDisplayed(updatedProfile.getIsDisplayed());
+            }
         }
 
+        // Update User fields (fullName, email, phone)
+        if (updatedProfile.getFullName() != null && !updatedProfile.getFullName().isBlank()) {
+            user.setFullName(updatedProfile.getFullName());
+        }
+        if (updatedProfile.getEmail() != null && !updatedProfile.getEmail().isBlank()) {
+            user.setEmail(updatedProfile.getEmail());
+        }
+        user.setPhone(updatedProfile.getPhone());
+
+        // Update Role field (exclude ADMIN user to prevent lockout)
+        if (updatedProfile.getRoleId() != null && !"ADMIN".equalsIgnoreCase(user.getRole().getRoleName())) {
+            Role role = roleRepository.findById(updatedProfile.getRoleId())
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy vai trò với ID: " + updatedProfile.getRoleId()));
+            user.setRole(role);
+        }
+
+        userRepository.save(user);
         StaffProfile saved = staffProfileRepository.save(profile);
         User u = saved.getUser();
         return StaffProfileResponse.builder()
@@ -934,7 +956,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public StaffProfileResponse updateStaff(Long id, StaffProfile profile, org.springframework.web.multipart.MultipartFile avatarFile) {
+    public StaffProfileResponse updateStaff(Long id, StaffUpdateRequest profile, org.springframework.web.multipart.MultipartFile avatarFile) {
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String url = cloudinaryService.uploadFile(avatarFile, "avatars");
             profile.setAvatarUrl(url);

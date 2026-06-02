@@ -126,14 +126,14 @@ public class AdminController {
     }
 
     @PutMapping(value = "/staff/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StaffProfileResponse> updateStaff(@PathVariable Long id, @RequestBody StaffProfile profile) {
+    public ResponseEntity<StaffProfileResponse> updateStaff(@PathVariable Long id, @Valid @RequestBody StaffUpdateRequest profile) {
         return ResponseEntity.ok(adminService.updateStaff(id, profile));
     }
 
     @PutMapping(value = "/staff/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<StaffProfileResponse> updateStaffMultipart(
             @PathVariable Long id,
-            @RequestPart("profile") StaffProfile profile,
+            @RequestPart("profile") @Valid StaffUpdateRequest profile,
             @RequestPart(value = "avatarFile", required = false) MultipartFile avatarFile) {
         return ResponseEntity.ok(adminService.updateStaff(id, profile, avatarFile));
     }

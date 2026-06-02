@@ -32,8 +32,8 @@ public interface AdminService {
     List<StaffProfileResponse> getAllStaff(int page, int size, String role);
     StaffProfileResponse createStaff(StaffCreateRequest request);
     StaffProfileResponse createStaff(StaffCreateRequest request, org.springframework.web.multipart.MultipartFile avatarFile);
-    StaffProfileResponse updateStaff(Long id, StaffProfile profile);
-    StaffProfileResponse updateStaff(Long id, StaffProfile profile, org.springframework.web.multipart.MultipartFile avatarFile);
+    StaffProfileResponse updateStaff(Long id, StaffUpdateRequest profile);
+    StaffProfileResponse updateStaff(Long id, StaffUpdateRequest profile, org.springframework.web.multipart.MultipartFile avatarFile);
     void toggleStaffActive(Long id);
     void toggleStaffDisplay(Long id);
     void resetStaffPassword(Long id, String newPassword);
