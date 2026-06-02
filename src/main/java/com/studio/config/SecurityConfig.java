@@ -33,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/studio/**", "/api/public/**", "/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/staff/**").hasAnyAuthority("MAKEUP", "PHOTOGRAPHER")
+                        .requestMatchers("/api/staff/**").hasAnyAuthority("MAKEUP", "PHOTOGRAPHER", "MEDIA")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

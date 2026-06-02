@@ -359,56 +359,59 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public List<StaffProfileResponse> getAllStaff(int page, int size) {
-        return staffProfileRepository.findAllWithUserAndRole().stream()
-                .skip((long) page * size)
-                .limit(size)
-                .map(p -> StaffProfileResponse.builder()
-                        .profileId(p.getId())
-                        .userId(p.getUser().getId())
-                        .username(p.getUser().getUsername())
-                        .fullName(p.getUser().getFullName())
-                        .email(p.getUser().getEmail())
-                        .phone(p.getUser().getPhone())
-                        .roleName(p.getUser().getRole().getRoleName())
-                        .avatarUrl(p.getAvatarUrl())
-                        .bio(p.getBio())
-                        .experienceDetail(p.getExperienceDetail())
-                        .yearsOfExperience(p.getYearsOfExperience())
-                        .facebookUrl(p.getFacebookUrl())
-                        .instagramUrl(p.getInstagramUrl())
-                        .tiktokUrl(p.getTiktokUrl())
-                        .isActive(p.getUser().getIsActive())
-                        .isDisplayed(p.getIsDisplayed())
-                        .build())
-                .collect(Collectors.toList());
+        return getAllStaff(page, size, null);
     }
 
     // Overload with optional role filter
     public List<StaffProfileResponse> getAllStaff(int page, int size, String roleName) {
-        return staffProfileRepository.findAllWithUserAndRole().stream()
-                .filter(p -> roleName == null || roleName.isBlank() ||
-                        p.getUser().getRole().getRoleName().equalsIgnoreCase(roleName))
+        List<User> users = userRepository.findAll();
+        
+        if (roleName != null && !roleName.isBlank()) {
+            String upperRole = roleName.toUpperCase();
+            users = users.stream()
+                    .filter(u -> u.getRole().getRoleName().equalsIgnoreCase(upperRole))
+                    .collect(Collectors.toList());
+        }
+
+        // Sắp xếp theo thứ tự ưu tiên: ADMIN -> PHOTOGRAPHER -> MAKEUP -> MEDIA
+        users.sort(java.util.Comparator.comparingInt(u -> getRoleSortWeight(u.getRole().getRoleName())));
+
+        return users.stream()
                 .skip((long) page * size)
                 .limit(size)
-                .map(p -> StaffProfileResponse.builder()
-                        .profileId(p.getId())
-                        .userId(p.getUser().getId())
-                        .username(p.getUser().getUsername())
-                        .fullName(p.getUser().getFullName())
-                        .email(p.getUser().getEmail())
-                        .phone(p.getUser().getPhone())
-                        .roleName(p.getUser().getRole().getRoleName())
-                        .avatarUrl(p.getAvatarUrl())
-                        .bio(p.getBio())
-                        .experienceDetail(p.getExperienceDetail())
-                        .yearsOfExperience(p.getYearsOfExperience())
-                        .facebookUrl(p.getFacebookUrl())
-                        .instagramUrl(p.getInstagramUrl())
-                        .tiktokUrl(p.getTiktokUrl())
-                        .isActive(p.getUser().getIsActive())
-                        .isDisplayed(p.getIsDisplayed())
-                        .build())
+                .map(u -> {
+                    StaffProfile p = u.getStaffProfile();
+                    return StaffProfileResponse.builder()
+                            .profileId(p != null ? p.getId() : u.getId())
+                            .userId(u.getId())
+                            .username(u.getUsername())
+                            .fullName(u.getFullName())
+                            .email(u.getEmail())
+                            .phone(u.getPhone())
+                            .roleName(u.getRole().getRoleName())
+                            .avatarUrl(p != null ? p.getAvatarUrl() : "https://res.cloudinary.com/do8uakd0l/image/upload/v1780213774/hai_m8zhf6.webp")
+                            .bio(p != null ? p.getBio() : "Sáng lập & Điều hành LEON STUDIO")
+                            .experienceDetail(p != null ? p.getExperienceDetail() : "Chỉ đạo nghệ thuật & Quản lý")
+                            .yearsOfExperience(p != null ? p.getYearsOfExperience() : 10)
+                            .facebookUrl(p != null ? p.getFacebookUrl() : null)
+                            .instagramUrl(p != null ? p.getInstagramUrl() : null)
+                            .tiktokUrl(p != null ? p.getTiktokUrl() : null)
+                            .isActive(u.getIsActive())
+                            .isDisplayed(p != null ? p.getIsDisplayed() : true)
+                            .build();
+                })
                 .collect(Collectors.toList());
+    }
+
+    private int getRoleSortWeight(String roleName) {
+        if (roleName == null) return 99;
+        switch (roleName.toUpperCase()) {
+            case "ADMIN": return 1;
+            case "PHOTOGRAPHER": return 2;
+            case "MAKEUP": return 3;
+            case "MEDIA": return 4;
+            default: return 99;
+        }
     }
 
 
@@ -468,17 +471,36 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public StaffProfileResponse updateStaff(Long id, StaffProfile updatedProfile) {
-        StaffProfile profile = staffProfileRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ nhân sự với ID: " + id));
+        StaffProfile profile = staffProfileRepository.findById(id).orElse(null);
+        if (profile == null) {
+            profile = staffProfileRepository.findByUserId(id).orElse(null);
+        }
 
-        // Update StaffProfile fields
-        if (updatedProfile.getAvatarUrl() != null) profile.setAvatarUrl(updatedProfile.getAvatarUrl());
-        profile.setBio(updatedProfile.getBio());
-        profile.setExperienceDetail(updatedProfile.getExperienceDetail());
-        profile.setYearsOfExperience(updatedProfile.getYearsOfExperience());
-        profile.setFacebookUrl(updatedProfile.getFacebookUrl());
-        profile.setInstagramUrl(updatedProfile.getInstagramUrl());
-        profile.setTiktokUrl(updatedProfile.getTiktokUrl());
+        if (profile == null) {
+            // Create a brand new StaffProfile for this user (e.g. for the ADMIN)
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản nhân viên với ID: " + id));
+            profile = StaffProfile.builder()
+                    .user(user)
+                    .avatarUrl(updatedProfile.getAvatarUrl() != null ? updatedProfile.getAvatarUrl() : "https://res.cloudinary.com/do8uakd0l/image/upload/v1780213774/hai_m8zhf6.webp")
+                    .bio(updatedProfile.getBio() != null ? updatedProfile.getBio() : "")
+                    .experienceDetail(updatedProfile.getExperienceDetail())
+                    .yearsOfExperience(updatedProfile.getYearsOfExperience() != null ? updatedProfile.getYearsOfExperience() : 10)
+                    .facebookUrl(updatedProfile.getFacebookUrl())
+                    .instagramUrl(updatedProfile.getInstagramUrl())
+                    .tiktokUrl(updatedProfile.getTiktokUrl())
+                    .isDisplayed(updatedProfile.getIsDisplayed() != null ? updatedProfile.getIsDisplayed() : true)
+                    .build();
+        } else {
+            // Update StaffProfile fields
+            if (updatedProfile.getAvatarUrl() != null) profile.setAvatarUrl(updatedProfile.getAvatarUrl());
+            profile.setBio(updatedProfile.getBio());
+            profile.setExperienceDetail(updatedProfile.getExperienceDetail());
+            profile.setYearsOfExperience(updatedProfile.getYearsOfExperience());
+            profile.setFacebookUrl(updatedProfile.getFacebookUrl());
+            profile.setInstagramUrl(updatedProfile.getInstagramUrl());
+            profile.setTiktokUrl(updatedProfile.getTiktokUrl());
+        }
 
         StaffProfile saved = staffProfileRepository.save(profile);
         User u = saved.getUser();

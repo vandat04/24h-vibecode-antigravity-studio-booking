@@ -20,7 +20,8 @@ INSERT INTO roles(role_name)
 VALUES
 ('ADMIN'),
 ('MAKEUP'),
-('PHOTOGRAPHER');
+('PHOTOGRAPHER'),
+('MEDIA');
 
 -- =====================================================
 -- USERS

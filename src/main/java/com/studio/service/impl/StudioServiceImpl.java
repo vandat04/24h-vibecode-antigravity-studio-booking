@@ -177,35 +177,55 @@ public class StudioServiceImpl implements StudioService {
 
     @Override
     public List<StaffProfileResponse> getStaff(String role, int page, int size) {
-        List<StaffProfile> profiles = staffProfileRepository.findAll()
-                .stream()
-                .filter(StaffProfile::getIsDisplayed)
+        List<User> users = userRepository.findAll().stream()
+                .filter(User::getIsActive)
+                .filter(u -> {
+                    StaffProfile p = u.getStaffProfile();
+                    return p == null || p.getIsDisplayed();
+                })
                 .collect(Collectors.toList());
 
         if (role != null && !role.isBlank()) {
             String upperRole = role.toUpperCase();
-            profiles = profiles.stream()
-                    .filter(p -> p.getUser().getRole().getRoleName().equalsIgnoreCase(upperRole))
+            users = users.stream()
+                    .filter(u -> u.getRole().getRoleName().equalsIgnoreCase(upperRole))
                     .collect(Collectors.toList());
         }
 
-        return profiles.stream()
+        // Sắp xếp theo thứ tự ưu tiên: ADMIN -> PHOTOGRAPHER -> MAKEUP -> MEDIA
+        users.sort(java.util.Comparator.comparingInt(u -> getRoleSortWeight(u.getRole().getRoleName())));
+
+        return users.stream()
                 .skip((long) page * size)
                 .limit(size)
-                .map(p -> StaffProfileResponse.builder()
-                        .profileId(p.getId())
-                        .userId(p.getUser().getId())
-                        .fullName(p.getUser().getFullName())
-                        .roleName(p.getUser().getRole().getRoleName())
-                        .avatarUrl(p.getAvatarUrl())
-                        .bio(p.getBio())
-                        .experienceDetail(p.getExperienceDetail())
-                        .yearsOfExperience(p.getYearsOfExperience())
-                        .facebookUrl(p.getFacebookUrl())
-                        .instagramUrl(p.getInstagramUrl())
-                        .tiktokUrl(p.getTiktokUrl())
-                        .build())
+                .map(u -> {
+                    StaffProfile p = u.getStaffProfile();
+                    return StaffProfileResponse.builder()
+                            .profileId(p != null ? p.getId() : u.getId())
+                            .userId(u.getId())
+                            .fullName(u.getFullName())
+                            .roleName(u.getRole().getRoleName())
+                            .avatarUrl(p != null ? p.getAvatarUrl() : "https://res.cloudinary.com/do8uakd0l/image/upload/v1780213774/hai_m8zhf6.webp")
+                            .bio(p != null ? p.getBio() : "Sáng lập & Điều hành LEON STUDIO")
+                            .experienceDetail(p != null ? p.getExperienceDetail() : "Chỉ đạo nghệ thuật & Quản lý")
+                            .yearsOfExperience(p != null ? p.getYearsOfExperience() : 10)
+                            .facebookUrl(p != null ? p.getFacebookUrl() : null)
+                            .instagramUrl(p != null ? p.getInstagramUrl() : null)
+                            .tiktokUrl(p != null ? p.getTiktokUrl() : null)
+                            .build();
+                })
                 .collect(Collectors.toList());
+    }
+
+    private int getRoleSortWeight(String roleName) {
+        if (roleName == null) return 99;
+        switch (roleName.toUpperCase()) {
+            case "ADMIN": return 1;
+            case "PHOTOGRAPHER": return 2;
+            case "MAKEUP": return 3;
+            case "MEDIA": return 4;
+            default: return 99;
+        }
     }
 
     @Override
