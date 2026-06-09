@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface ServicePackageRepository extends JpaRepository<ServicePackage, Long> {
     Optional<ServicePackage> findBySlug(String slug);
     List<ServicePackage> findByIsActiveTrue();
+    List<ServicePackage> findByIsActiveTrueAndServiceType_Id(Long serviceTypeId);
     Optional<ServicePackage> findBySlugAndIsActiveTrue(String slug);
 }

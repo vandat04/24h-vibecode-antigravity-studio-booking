@@ -41,6 +41,7 @@ public class StudioServiceImpl implements StudioService {
     private final StudioScheduleConfig scheduleConfig;
     private final BookingHoldRepository bookingHoldRepository;
     private final UserRepository userRepository;
+    private final ServiceTypeRepository serviceTypeRepository;
 
     @Override
     public StudioInfoResponse getStudioInfo() {
@@ -67,6 +68,11 @@ public class StudioServiceImpl implements StudioService {
                 .workingProcess(info.getWorkingProcess())
                 .googleMapUrl(info.getGoogleMapUrl())
                 .build();
+    }
+
+    @Override
+    public List<ServiceType> getServiceTypes() {
+        return serviceTypeRepository.findAll();
     }
 
     @Override
@@ -159,9 +165,14 @@ public class StudioServiceImpl implements StudioService {
     }
 
     @Override
-    public List<ServicePackageResponse> getPackages(int page, int size) {
-        return servicePackageRepository.findByIsActiveTrue()
-                .stream()
+    public List<ServicePackageResponse> getPackages(Long serviceTypeId, int page, int size) {
+        List<ServicePackage> packages;
+        if (serviceTypeId != null) {
+            packages = servicePackageRepository.findByIsActiveTrueAndServiceType_Id(serviceTypeId);
+        } else {
+            packages = servicePackageRepository.findByIsActiveTrue();
+        }
+        return packages.stream()
                 .skip((long) page * size)
                 .limit(size)
                 .map(this::toPackageResponse)
@@ -574,6 +585,8 @@ public class StudioServiceImpl implements StudioService {
                 .makeupPersonCount(pkg.getMakeupPersonCount())
                 .thumbnailUrl(pkg.getThumbnailUrl())
                 .isActive(pkg.getIsActive())
+                .serviceTypeId(pkg.getServiceType() != null ? pkg.getServiceType().getId() : null)
+                .serviceTypeName(pkg.getServiceType() != null ? pkg.getServiceType().getServiceName() : null)
                 .build();
     }
 }

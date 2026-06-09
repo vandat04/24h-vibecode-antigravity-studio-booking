@@ -106,6 +106,17 @@ PRIMARY KEY (id),
 CONSTRAINT fk_images_concept FOREIGN KEY (concept_id) REFERENCES concepts(id) ON DELETE CASCADE) ENGINE=InnoDB;
 
 -- =====================================================
+-- TẠO BẢNG SERVICE_TYPES (DANH MỤC DỊCH VỤ CHỤP)
+-- =====================================================
+CREATE TABLE service_types (
+    id INT UNSIGNED AUTO_INCREMENT,
+    service_name VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_service_name (service_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- =====================================================
 -- SERVICE PACKAGES
 -- =====================================================
 CREATE TABLE service_packages (
@@ -123,6 +134,18 @@ thumbnail_url VARCHAR(500) NOT NULL,
 is_active BOOLEAN NOT NULL DEFAULT TRUE,
 PRIMARY KEY (id),
 UNIQUE KEY uk_package_slug(slug) ) ENGINE=InnoDB;
+
+-- =====================================================
+-- 2. LIÊN KẾT BẢNG SERVICE_PACKAGES VỚI SERVICE_TYPES
+-- =====================================================
+-- Thêm cột khóa ngoại vào bảng gói chụp
+ALTER TABLE service_packages
+ADD COLUMN service_type_id INT UNSIGNED NULL;
+-- Tạo ràng buộc khóa ngoại (Foreign Key Constraint)
+ALTER TABLE service_packages
+ADD CONSTRAINT fk_packages_service_type
+FOREIGN KEY (service_type_id) REFERENCES service_types(id)
+ON DELETE SET NULL;
 
 -- =====================================================
 -- BLOGS

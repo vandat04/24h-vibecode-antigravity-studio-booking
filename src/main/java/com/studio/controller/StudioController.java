@@ -4,6 +4,7 @@ import com.studio.constant.ConceptType;
 import com.studio.dto.request.BookingRequest;
 import com.studio.dto.request.BookingHoldRequest;
 import com.studio.dto.response.*;
+import com.studio.entity.ServiceType;
 import com.studio.service.StudioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,14 +51,20 @@ public class StudioController {
     // =========================================================
     @GetMapping("/packages")
     public ResponseEntity<List<ServicePackageResponse>> getPackages(
+            @RequestParam(required = false) Long serviceTypeId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(studioService.getPackages(page, size));
+        return ResponseEntity.ok(studioService.getPackages(serviceTypeId, page, size));
     }
 
     @GetMapping("/packages/{slug}")
     public ResponseEntity<ServicePackageResponse> getPackageDetail(@PathVariable String slug) {
         return ResponseEntity.ok(studioService.getPackageDetail(slug));
+    }
+
+    @GetMapping("/service-types")
+    public ResponseEntity<List<ServiceType>> getServiceTypes() {
+        return ResponseEntity.ok(studioService.getServiceTypes());
     }
 
     // =========================================================

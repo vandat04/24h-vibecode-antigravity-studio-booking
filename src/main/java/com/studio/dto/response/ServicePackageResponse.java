@@ -20,4 +20,6 @@ public class ServicePackageResponse {
     private Integer makeupPersonCount;
     private String thumbnailUrl;
     private Boolean isActive;
+    private Long serviceTypeId;
+    private String serviceTypeName;
 }

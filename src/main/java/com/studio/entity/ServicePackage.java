@@ -61,6 +61,21 @@ public class ServicePackage {
     @Builder.Default
     private Boolean isActive = true;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "service_type_id", foreignKey = @ForeignKey(name = "fk_packages_service_type"))
+    private ServiceType serviceType;
+
+    @Transient
+    private Long serviceTypeId;
+
+    public Long getServiceTypeId() {
+        return serviceType != null ? serviceType.getId() : serviceTypeId;
+    }
+
+    public void setServiceTypeId(Long serviceTypeId) {
+        this.serviceTypeId = serviceTypeId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

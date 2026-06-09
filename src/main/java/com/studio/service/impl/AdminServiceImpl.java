@@ -32,6 +32,7 @@ public class AdminServiceImpl implements AdminService {
     private final BookingAssignmentRepository bookingAssignmentRepository;
     private final BookingStatusHistoryRepository bookingStatusHistoryRepository;
     private final PostProductionHistoryRepository postProductionHistoryRepository;
+    private final ServiceTypeRepository serviceTypeRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final StaffProfileRepository staffProfileRepository;
@@ -656,6 +657,11 @@ public class AdminServiceImpl implements AdminService {
         if (pkg.getSlug() == null || pkg.getSlug().isBlank()) {
             pkg.setSlug(toSlug(pkg.getPackageName()) + "-" + (System.currentTimeMillis() % 10000));
         }
+        if (pkg.getServiceTypeId() != null) {
+            ServiceType serviceType = serviceTypeRepository.findById(pkg.getServiceTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Service Type với ID: " + pkg.getServiceTypeId()));
+            pkg.setServiceType(serviceType);
+        }
         return servicePackageRepository.save(pkg);
     }
 
@@ -675,6 +681,14 @@ public class AdminServiceImpl implements AdminService {
         pkg.setMakeupPersonCount(updated.getMakeupPersonCount());
         pkg.setThumbnailUrl(updated.getThumbnailUrl());
         pkg.setIsActive(updated.getIsActive());
+
+        if (updated.getServiceTypeId() != null) {
+            ServiceType serviceType = serviceTypeRepository.findById(updated.getServiceTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Service Type với ID: " + updated.getServiceTypeId()));
+            pkg.setServiceType(serviceType);
+        } else {
+            pkg.setServiceType(null);
+        }
 
         if (updated.getSlug() != null && !updated.getSlug().isBlank()) {
             pkg.setSlug(updated.getSlug());

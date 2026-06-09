@@ -128,3 +128,10 @@ INSERT INTO post_production_histories(booking_id, production_status, raw_photo_l
 (4, 'EDITING', 'https://drive.google.com/raw4', NULL, 'Dang chinh mau', 1 ),
 (5, 'DELIVERED', 'https://drive.google.com/raw5', 'https://drive.google.com/final5', 'Da ban giao', 1 );
 
+-- =====================================================
+-- 3. NẠP DỮ LIỆU BAN ĐẦU CHO SERVICE_TYPES (SEED DATA)
+-- =====================================================
+INSERT INTO service_types (service_name) VALUES
+('STANDARD'),
+('PREMIUM'),
+('VIP');
